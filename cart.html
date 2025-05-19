@@ -218,7 +218,7 @@
     function showCheckoutModal() {
         const cart = JSON.parse(localStorage.getItem('cart')) || [];
         if (cart.length === 0) {
-            alert('Ваша корзина пуста!');
+            window.location.href = 'index.html';
             return;
         }
 
@@ -261,7 +261,7 @@
         message += `\nИтого: ${total.toFixed(2)} ₸`;
 
         const token = '7435508014:AAGU0xUBwpyYfepMvFGJgCMylXpTirlEQoU';
-        const chat_id = '-4861439730';
+        const chat_id = '-4731629387';
 
         try {
             await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
