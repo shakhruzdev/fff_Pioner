@@ -153,6 +153,31 @@
 </div>
 
 <script>
+    const phoneInput = document.getElementById("customerPhone");
+
+    phoneInput.addEventListener("focus", () => {
+        if (phoneInput.value === "+7") {
+            phoneInput.setSelectionRange(2, 2);
+        }
+    });
+
+    phoneInput.addEventListener("input", (e) => {
+        let phoneNumber = phoneInput.value.replace(/[^0-9]/g, "");
+
+        if (!phoneNumber.startsWith("7")) {
+            phoneNumber = "7";
+        }
+
+        phoneNumber = phoneNumber.substring(0, 11);
+
+        phoneInput.value = `+${phoneNumber}`;
+    });
+
+    phoneInput.addEventListener("keydown", (e) => {
+        if (phoneInput.selectionStart <= 2 && (e.key === "Backspace" || e.key === "Delete")) {
+            e.preventDefault();
+        }
+    });
     document.addEventListener('DOMContentLoaded', function () {
         displayCartItems();
     });
