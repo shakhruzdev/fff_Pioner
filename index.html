@@ -306,17 +306,56 @@
     </div>
 </div>
 
-<div class="cart-icon" onclick="window.location.href='cart'">🛒</div>
+<div class="cart-icon" onclick="window.location.href='cart.html'">🛒</div>
 
 <footer>Телефон: +7 (775) 205-38-50</footer>
 
 <script>
+    const categories = document.querySelectorAll('.category');
+    const cards = document.querySelectorAll('.menu-card');
+    const modal = document.getElementById('orderModal');
+    const orderButtons = document.querySelectorAll('.order-btn');
+    let selectedProduct = '';
+
+    categories.forEach(category => {
+        category.addEventListener('click', () => {
+            const filter = category.getAttribute('data-filter');
+            cards.forEach(card => {
+                card.style.display = filter === 'all' || card.getAttribute('data-category') === filter
+                    ? 'block' : 'none';
+            });
+        });
+    });
+
+    orderButtons.forEach(button => {
+        button.addEventListener('click', (e) => {
+            const card = e.target.closest('.menu-card');
+            selectedProduct = card.querySelector('h3').innerText;
+            modal.style.display = 'flex';
+        });
+    });
+
+    function closeModal() {
+        modal.style.display = 'none';
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
         const orderButtons = document.querySelectorAll('.order-btn');
         const addToCartButtons = document.querySelectorAll('.add-to-cart');
         const decreaseButtons = document.querySelectorAll('.decrease-btn');
         const increaseButtons = document.querySelectorAll('.increase-btn');
         const quantityInputs = document.querySelectorAll('.quantity-input');
+        const categories = document.querySelectorAll('.category');
+
+        categories.forEach(category => {
+            category.addEventListener('click', () => {
+                const filter = category.getAttribute('data-filter');
+                cards.forEach(card => {
+                    card.style.display = filter === 'all' || card.getAttribute('data-category') === filter
+                        ? 'block' : 'none';
+                });
+            });
+        });
 
         if (!localStorage.getItem('cart')) {
             localStorage.setItem('cart', JSON.stringify([]));
