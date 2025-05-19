@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="ru">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Печеньки для Удовольствия</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background: #fefefe;
+            color: #222;
+        }
+
+        header {
+            background: #ffdd00;
+            padding: 1.5rem;
+            text-align: center;
+            font-size: 2rem;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .categories {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            padding: 1rem;
+        }
+
+        .category {
+            background: #fff5b1;
+            padding: 0.6rem 1.2rem;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: background 0.3s;
+            font-weight: 500;
+        }
+
+        .category:hover {
+            background: #ffe066;
+        }
+
+        .menu-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            padding: 2rem;
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        .menu-card {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            text-align: center;
+            padding-bottom: 1rem;
+            position: relative;
+        }
+
+        .menu-card img {
+            width: 80%;
+            height: 80%;
+            object-fit: cover;
+        }
+
+        .menu-card h3 {
+            margin: 1rem 0 0.5rem;
+        }
+
+        .price {
+            font-weight: bold;
+            color: #2b8a3e;
+            font-size: 1.1rem;
+        }
+
+        .order-btn {
+            margin-top: 0.5rem;
+            background: #ff8800;
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .order-btn:hover {
+            background: #ff6f00;
+        }
+
+        footer {
+            background: #f1f1f1;
+            padding: 1rem;
+            text-align: center;
+            font-size: 0.9rem;
+            margin-top: 2rem;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .modal-content input {
+            width: 100%;
+            margin: 0.5rem 0;
+            padding: 0.5rem;
+            font-size: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+
+        .modal-content button {
+            margin-top: 1rem;
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 0.5rem 1.2rem;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .close-modal {
+            margin-top: 0.5rem;
+            background: transparent;
+            border: none;
+            color: #888;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        .cart-icon {
+            position: fixed;
+            right: 1rem;
+            bottom: 1rem;
+            background: #ff8800;
+            color: white;
+            padding: 1rem;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 100;
+        }
+
+        .quantity-selector {
+            display: none;
+            margin-top: 1rem;
+        }
+
+        .quantity {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin: 0.5rem 0;
+        }
+
+        .quantity button {
+            padding: 0.3rem 0.6rem;
+            background: #ff8800;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .quantity input {
+            width: 2rem;
+            text-align: center;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 0.3rem;
+        }
+
+        .add-to-cart {
+            margin-top: 0.5rem;
+            background: #28a745;
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            display: none;
+        }
+
+        .product-info {
+            display: none;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+<header>Pioner<br>Печеньки для удовольствия</header>
+
+<div class="categories">
+    <div class="category" data-filter="all">Все</div>
+    <div class="category" data-filter="сахарное">Cахарное</div>
+    <div class="category" data-filter="затяжное">Затяжное</div>
+    <div class="category" data-filter="сдобное">Сдобное</div>
+    <div class="category" data-filter="сухое">Сухое</div>
+</div>
+
+<div class="menu-container">
+    <div class="menu-card" data-category="сахарное">
+        <img style="width: 307px; height: 290px" src="{% static '/img/sugar_biscuit.png' %}" alt="Сахарное печенье">
+        <h3>Cахарное Печенье</h3>
+        <div class="price">1205 ₸</div>
+        <button class="order-btn">Заказать</button>
+
+        <div class="quantity-selector">
+            <div class="quantity">
+                <button class="decrease-btn">-</button>
+                <input type="number" value="1" min="1" class="quantity-input">
+                <button class="increase-btn">+</button>
+            </div>
+            <button class="add-to-cart">Добавить в корзину</button>
+            <div class="product-info">
+                <span class="product-name"></span>
+                <span class="product-price"></span>
+                <span class="product-quantity"></span>
+            </div>
+        </div>
+    </div>
+    <div class="menu-card" data-category="затяжное">
+        <img style="width: 307px; height: 290px" src="{% static '/img/protracted_biscuit.png' %}"
+             alt="Затяжное печенье">
+        <h3>Затяжное Печенье</h3>
+        <div class="price">1100 ₸</div>
+        <button class="order-btn">Заказать</button>
+
+        <div class="quantity-selector">
+            <div class="quantity">
+                <button class="decrease-btn">-</button>
+                <input type="number" value="1" min="1" class="quantity-input">
+                <button class="increase-btn">+</button>
+            </div>
+            <button class="add-to-cart">Добавить в корзину</button>
+            <div class="product-info">
+                <span class="product-name"></span>
+                <span class="product-price"></span>
+                <span class="product-quantity"></span>
+            </div>
+        </div>
+    </div>
+    <div class="menu-card" data-category="сдобное">
+        <img style="width: 307px; height: 290px" src="{% static '/img/butter_biscuit.png' %}" alt="Сдобное печенье">
+        <h3>Сдобное Печенье</h3>
+        <div class="price">1500 ₸</div>
+        <button class="order-btn">Заказать</button>
+
+        <div class="quantity-selector">
+            <div class="quantity">
+                <button class="decrease-btn">-</button>
+                <input type="number" value="1" min="1" class="quantity-input">
+                <button class="increase-btn">+</button>
+            </div>
+            <button class="add-to-cart">Добавить в корзину</button>
+            <div class="product-info">
+                <span class="product-name"></span>
+                <span class="product-price"></span>
+                <span class="product-quantity"></span>
+            </div>
+        </div>
+    </div>
+    <div class="menu-card" data-category="сухое">
+        <img style="width: 307px; height: 290px" src="{% static '/img/dry_biscuit.png' %}" alt="Сухое печенье">
+        <h3>Сухое Печенье</h3>
+        <div class="price">485 ₸</div>
+        <button class="order-btn">Заказать</button>
+
+        <div class="quantity-selector">
+            <div class="quantity">
+                <button class="decrease-btn">-</button>
+                <input type="number" value="1" min="1" class="quantity-input">
+                <button class="increase-btn">+</button>
+            </div>
+            <button class="add-to-cart">Добавить в корзину</button>
+            <div class="product-info">
+                <span class="product-name"></span>
+                <span class="product-price"></span>
+                <span class="product-quantity"></span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="cart-icon" onclick="window.location.href='cart'">🛒</div>
+
+<footer>Телефон: +7 (775) 205-38-50</footer>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const orderButtons = document.querySelectorAll('.order-btn');
+        const addToCartButtons = document.querySelectorAll('.add-to-cart');
+        const decreaseButtons = document.querySelectorAll('.decrease-btn');
+        const increaseButtons = document.querySelectorAll('.increase-btn');
+        const quantityInputs = document.querySelectorAll('.quantity-input');
+
+        if (!localStorage.getItem('cart')) {
+            localStorage.setItem('cart', JSON.stringify([]));
+        }
+
+        orderButtons.forEach((button, index) => {
+            button.addEventListener('click', function () {
+                document.querySelectorAll('.quantity-selector').forEach(selector => {
+                    selector.style.display = 'none';
+                });
+                document.querySelectorAll('.add-to-cart').forEach(btn => {
+                    btn.style.display = 'none';
+                });
+
+                const quantitySelector = this.parentNode.querySelector('.quantity-selector');
+                quantitySelector.style.display = 'block';
+
+                const addToCartBtn = this.parentNode.querySelector('.add-to-cart');
+                addToCartBtn.style.display = 'inline-block';
+
+                const productName = this.parentNode.querySelector('h3').textContent;
+                const productPrice = this.parentNode.querySelector('.price').textContent;
+                this.parentNode.querySelector('.product-name').textContent = productName;
+                this.parentNode.querySelector('.product-price').textContent = productPrice;
+            });
+        });
+
+        decreaseButtons.forEach(button => {
+            button.addEventListener('click', function () {
+                const input = this.nextElementSibling;
+                if (parseInt(input.value) > 1) {
+                    input.value = parseInt(input.value) - 1;
+                }
+            });
+        });
+
+        increaseButtons.forEach(button => {
+            button.addEventListener('click', function () {
+                const input = this.previousElementSibling;
+                input.value = parseInt(input.value) + 1;
+            });
+        });
+
+        addToCartButtons.forEach(button => {
+            button.addEventListener('click', function () {
+                const card = this.closest('.menu-card');
+                const productName = card.querySelector('h3').textContent;
+                const productPrice = card.querySelector('.price').textContent;
+                const quantity = card.querySelector('.quantity-input').value;
+
+                let cart = JSON.parse(localStorage.getItem('cart'));
+
+                const existingProductIndex = cart.findIndex(item => item.name === productName);
+
+                if (existingProductIndex !== -1) {
+                    cart[existingProductIndex].quantity = parseInt(cart[existingProductIndex].quantity) + parseInt(quantity);
+                } else {
+                    cart.push({
+                        name: productName,
+                        price: productPrice,
+                        quantity: quantity
+                    });
+                }
+
+                localStorage.setItem('cart', JSON.stringify(cart));
+
+                alert(`${productName} (${quantity} шт.) добавлено в корзину!`);
+
+                card.querySelector('.quantity-selector').style.display = 'none';
+                this.style.display = 'none';
+            });
+        });
+    });
+</script>
+
+</body>
+</html>

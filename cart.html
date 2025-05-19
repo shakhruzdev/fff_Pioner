@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Корзина</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #fefefe;
+        }
+
+        header {
+            background: #ffdd00;
+            padding: 1.5rem;
+            text-align: center;
+            font-size: 2rem;
+            
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .cart-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 1rem;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .item-info {
+            flex: 2;
+        }
+
+        .item-price {
+            flex: 1;
+            text-align: right;
+        }
+
+        .item-quantity {
+            flex: 1;
+            text-align: center;
+        }
+
+        .total {
+            font-weight: bold;
+            font-size: 1.2rem;
+            text-align: right;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 2px solid #ff8800;
+        }
+
+        .checkout-btn {
+            display: block;
+            width: 100%;
+            padding: 1rem;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+
+        .empty-cart {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .modal-content h3 {
+            margin-top: 0;
+        }
+
+        .modal-content input {
+            width: 100%;
+            margin: 0.5rem 0;
+            padding: 0.5rem;
+            font-size: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+
+        .modal-content button {
+            margin-top: 1rem;
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 0.5rem 1.2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .close-modal {
+            margin-top: 0.5rem;
+            background: transparent;
+            border: none;
+            color: #888;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+<header>Pioner<br>Ваша корзинка</header>
+
+<div class="cart-container">
+    <div id="cart-items"></div>
+    <div id="cart-total" class="total"></div>
+    <button class="checkout-btn" onclick="showCheckoutModal()">Оформить заказ</button>
+</div>
+
+<div class="modal" id="checkoutModal">
+    <div class="modal-content">
+        <h3>Оформление заказа</h3>
+        <input type="text" id="customerName" placeholder="Ваше имя" required>
+        <input type="tel" id="customerPhone" placeholder="Ваш номер телефона" required>
+        <button onclick="sendOrderToTelegram()">Подтвердить заказ</button>
+        <button class="close-modal" onclick="closeModal()">Отмена</button>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        displayCartItems();
+    });
+
+    function displayCartItems() {
+        const cartItemsContainer = document.getElementById('cart-items');
+        const cartTotalContainer = document.getElementById('cart-total');
+
+        const cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+        if (cart.length === 0) {
+            cartItemsContainer.innerHTML = '<div class="empty-cart">Ваша корзина пуста</div>';
+            cartTotalContainer.textContent = '';
+            return;
+        }
+
+        let total = 0;
+        let itemsHTML = '';
+
+        cart.forEach(item => {
+            const price = parseFloat(item.price.replace(/[^\d.]/g, ''));
+            const itemTotal = price * item.quantity;
+            total += itemTotal;
+
+            itemsHTML += `
+                    <div class="cart-item">
+                        <div class="item-info">${item.name}</div>
+                        <div class="item-quantity">${item.quantity} шт.</div>
+                        <div class="item-price">${itemTotal.toFixed(2)} ₸</div>
+                    </div>
+                `;
+        });
+
+        cartItemsContainer.innerHTML = itemsHTML;
+        cartTotalContainer.textContent = `Итого: ${total.toFixed(2)} ₸`;
+    }
+
+    function showCheckoutModal() {
+        const cart = JSON.parse(localStorage.getItem('cart')) || [];
+        if (cart.length === 0) {
+            alert('Ваша корзина пуста!');
+            return;
+        }
+
+        document.getElementById('checkoutModal').style.display = 'flex';
+    }
+
+    function closeModal() {
+        document.getElementById('checkoutModal').style.display = 'none';
+    }
+
+    async function sendOrderToTelegram() {
+        const name = document.getElementById('customerName').value;
+        const phone = document.getElementById('customerPhone').value;
+
+        if (!name || !phone) {
+            alert('Пожалуйста, заполните все поля!');
+            return;
+        }
+
+        const cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+        if (cart.length === 0) {
+            alert('Ваша корзина пуста!');
+            return;
+        }
+
+        let message = `Новый заказ!\n\n`;
+        message += `Имя: ${name}\n`;
+        message += `Телефон: ${phone}\n\n`;
+        message += `Заказ:\n`;
+
+        let total = 0;
+        cart.forEach(item => {
+            const price = parseFloat(item.price.replace(/[^\d.]/g, ''));
+            const itemTotal = price * item.quantity;
+            total += itemTotal;
+            message += `- ${item.name}: ${item.quantity} шт. x ${price} ₸ = ${itemTotal.toFixed(2)} ₸\n`;
+        });
+
+        message += `\nИтого: ${total.toFixed(2)} ₸`;
+
+        const token = '7435508014:AAGU0xUBwpyYfepMvFGJgCMylXpTirlEQoU';
+        const chat_id = '5467422443';
+
+        try {
+            await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    chat_id: chat_id,
+                    text: message
+                })
+            });
+
+            localStorage.setItem('cart', JSON.stringify([]));
+
+            closeModal();
+
+            alert('Спасибо! Ваш заказ отправлен. Мы свяжемся с вами в ближайшее время.');
+
+            displayCartItems();
+
+        } catch (error) {
+            console.error('Error sending order:', error);
+            alert('Произошла ошибка при отправке заказа. Пожалуйста, попробуйте еще раз.');
+        }
+    }
+</script>
+</body>
+</html>
