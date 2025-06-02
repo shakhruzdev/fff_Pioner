@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Корзина</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body {
             font-family: 'Segoe UI', sans-serif;
@@ -42,11 +43,36 @@
         .item-price {
             flex: 1;
             text-align: right;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
         }
 
         .item-quantity {
             flex: 1;
-            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .item-quantity button {
+            background: #eee;
+            border: 1px solid #ccc;
+            padding: 0.3rem 0.6rem;
+            font-size: 1rem;
+            margin: 0 0.3rem;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        .delete-btn {
+            background: none;
+            border: none;
+            color: #ff4444;
+            cursor: pointer;
+            margin-left: 10px;
+            font-size: 1rem;
         }
 
         .total {
@@ -178,6 +204,7 @@
             e.preventDefault();
         }
     });
+
     document.addEventListener('DOMContentLoaded', function () {
         displayCartItems();
     });
@@ -185,7 +212,6 @@
     function displayCartItems() {
         const cartItemsContainer = document.getElementById('cart-items');
         const cartTotalContainer = document.getElementById('cart-total');
-
         const cart = JSON.parse(localStorage.getItem('cart')) || [];
 
         if (cart.length === 0) {
@@ -197,22 +223,51 @@
         let total = 0;
         let itemsHTML = '';
 
-        cart.forEach(item => {
+        cart.forEach((item, index) => {
             const price = parseFloat(item.price.replace(/[^\d.]/g, ''));
             const itemTotal = price * item.quantity;
             total += itemTotal;
 
             itemsHTML += `
-                    <div class="cart-item">
-                        <div class="item-info">${item.name}</div>
-                        <div class="item-quantity">${item.quantity} шт.</div>
-                        <div class="item-price">${itemTotal.toFixed(2)} ₸</div>
+                <div class="cart-item" data-index="${index}">
+                    <div class="item-info">${item.name}</div>
+                    <div class="item-quantity">
+                        <button onclick="decreaseQuantity(${index})">−</button>
+                        ${item.quantity} шт.
+                        <button onclick="increaseQuantity(${index})">+</button>
                     </div>
-                `;
+                    <div class="item-price">${itemTotal.toFixed(2)} ₸
+                        <button onclick="removeItem(${index})" style="background:none;border:none;color:red;font-weight:bold;font-size:1.2rem;cursor:pointer;">🗑</button>
+                    </div>
+                </div>
+            `;
         });
 
         cartItemsContainer.innerHTML = itemsHTML;
         cartTotalContainer.textContent = `Итого: ${total.toFixed(2)} ₸`;
+    }
+
+    function increaseQuantity(index) {
+        const cart = JSON.parse(localStorage.getItem('cart')) || [];
+        cart[index].quantity = Number(cart[index].quantity) + 1;
+        localStorage.setItem('cart', JSON.stringify(cart));
+        displayCartItems();
+    }
+
+    function decreaseQuantity(index) {
+        const cart = JSON.parse(localStorage.getItem('cart')) || [];
+        if (cart[index].quantity > 1) {
+            cart[index].quantity -= 1;
+            localStorage.setItem('cart', JSON.stringify(cart));
+            displayCartItems();
+        }
+    }
+
+    function removeItem(index) {
+        const cart = JSON.parse(localStorage.getItem('cart')) || [];
+        cart.splice(index, 1);
+        localStorage.setItem('cart', JSON.stringify(cart));
+        displayCartItems();
     }
 
     function showCheckoutModal() {
